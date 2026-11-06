@@ -2,13 +2,16 @@
 
 MCP server that executes shell commands and captures terminal output as styled PNG screenshots — perfect for pentest reports, documentation, and any workflow where you need professional-looking terminal captures.
 
+Works with any MCP-compatible client: **Claude Code**, **OpenAI Codex**, **Antigravity**, **Cursor**, **Windsurf**, **Cline**, **Continue**, and more.
+
 ## Features
 
 - **Execute & capture**: Run commands with full ANSI color preservation
 - **Terminal-styled screenshots**: Renders output as PNG with macOS window chrome, proper colors, and metadata
-- **5 built-in themes**: Tokyo Night, Dracula, Monokai, Catppuccin, Hacker (green matrix)
+- **7 built-in themes**: Tokyo Night, Dracula, Monokai, Catppuccin, Hacker, macOS, Kali
 - **Report-ready**: Watermarks, timestamps, exit codes, custom titles
 - **Full ANSI support**: 16 colors, 256-color palette, and 24-bit truecolor
+- **Cross-platform**: macOS and Linux support
 - **Session capture management**: List, re-render, and manage captures
 
 ## Screenshot Examples
@@ -17,6 +20,19 @@ MCP server that executes shell commands and captures terminal output as styled P
 
 ## Installation
 
+### Quick Setup (Recommended)
+
+```bash
+git clone https://github.com/JoasASantos/terminal-mcp.git
+cd terminal-mcp
+chmod +x setup.sh
+./setup.sh
+```
+
+The setup script handles everything: dependency installation, build, and MCP client registration.
+
+### Manual Setup
+
 ```bash
 git clone https://github.com/JoasASantos/terminal-mcp.git
 cd terminal-mcp
@@ -24,10 +40,49 @@ npm install
 npm run build
 ```
 
-## Configuration
+### Linux Prerequisites
 
-Add to your `~/.mcp.json` (global) or project `.mcp.json`:
+On Linux, Puppeteer requires some system libraries for Chromium:
 
+**Debian/Ubuntu:**
+```bash
+sudo apt-get install -y \
+  libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2 \
+  libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 \
+  libxrandr2 libgbm1 libpango-1.0-0 libcairo2 libasound2
+```
+
+**Fedora/RHEL:**
+```bash
+sudo dnf install -y \
+  nss atk at-spi2-atk cups-libs libdrm libxkbcommon \
+  libXcomposite libXdamage libXrandr mesa-libgbm pango cairo alsa-lib
+```
+
+**Arch Linux:**
+```bash
+sudo pacman -S nss atk at-spi2-atk cups libdrm libxkbcommon \
+  libxcomposite libxdamage libxrandr mesa pango cairo alsa-lib
+```
+
+## Client Configuration
+
+### Claude Code
+
+**Automatic (via setup.sh):**
+```bash
+./setup.sh
+# Restart Claude Code after setup
+```
+
+**Manual (via CLI):**
+```bash
+claude mcp add terminal-mcp --scope user -e TERMINAL_MCP_DIR="$HOME/terminal-screenshots" -- node /path/to/terminal-mcp/dist/index.js
+```
+
+### OpenAI Codex
+
+Add to your Codex MCP configuration:
 ```json
 {
   "mcpServers": {
@@ -41,6 +96,101 @@ Add to your `~/.mcp.json` (global) or project `.mcp.json`:
   }
 }
 ```
+
+### Cursor
+
+Add to `.cursor/mcp.json` in your project or `~/.cursor/mcp.json` globally:
+```json
+{
+  "mcpServers": {
+    "terminal-mcp": {
+      "command": "node",
+      "args": ["/path/to/terminal-mcp/dist/index.js"],
+      "env": {
+        "TERMINAL_MCP_DIR": "/path/to/screenshots"
+      }
+    }
+  }
+}
+```
+
+### Windsurf
+
+Add to your Windsurf MCP settings (`~/.windsurf/mcp.json`):
+```json
+{
+  "mcpServers": {
+    "terminal-mcp": {
+      "command": "node",
+      "args": ["/path/to/terminal-mcp/dist/index.js"],
+      "env": {
+        "TERMINAL_MCP_DIR": "/path/to/screenshots"
+      }
+    }
+  }
+}
+```
+
+### Cline (VS Code)
+
+Add to Cline's MCP server settings in VS Code:
+```json
+{
+  "mcpServers": {
+    "terminal-mcp": {
+      "command": "node",
+      "args": ["/path/to/terminal-mcp/dist/index.js"],
+      "env": {
+        "TERMINAL_MCP_DIR": "/path/to/screenshots"
+      }
+    }
+  }
+}
+```
+
+### Continue
+
+Add to `~/.continue/config.json`:
+```json
+{
+  "experimental": {
+    "mcpServers": {
+      "terminal-mcp": {
+        "command": "node",
+        "args": ["/path/to/terminal-mcp/dist/index.js"],
+        "env": {
+          "TERMINAL_MCP_DIR": "/path/to/screenshots"
+        }
+      }
+    }
+  }
+}
+```
+
+### Antigravity
+
+Add to your Antigravity MCP configuration:
+```json
+{
+  "mcpServers": {
+    "terminal-mcp": {
+      "command": "node",
+      "args": ["/path/to/terminal-mcp/dist/index.js"],
+      "env": {
+        "TERMINAL_MCP_DIR": "/path/to/screenshots"
+      }
+    }
+  }
+}
+```
+
+### Generic MCP Client
+
+Any client supporting the [Model Context Protocol](https://modelcontextprotocol.io/) can use terminal-mcp. The server communicates over **stdio** using JSON-RPC. Configure it with:
+
+- **Command:** `node`
+- **Args:** `["/path/to/terminal-mcp/dist/index.js"]`
+- **Env (optional):** `TERMINAL_MCP_DIR` — directory for saved screenshots
 
 ## Tools
 
@@ -113,7 +263,8 @@ terminal_screenshot_text({
 
 - Node.js 18+
 - Puppeteer (bundled — downloads Chromium on first run)
+- On Linux: system libraries for headless Chromium (see [Linux Prerequisites](#linux-prerequisites))
 
 ## License
 
-MIT
+[MIT](LICENSE)
