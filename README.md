@@ -61,6 +61,8 @@ Add to your `~/.mcp.json` (global) or project `.mcp.json`:
 - **monokai** — Warm dark theme with vibrant colors
 - **catppuccin** — Soft pastel dark theme
 - **hacker** — Green-on-black matrix style
+- **macos** — Native macOS Terminal.app dark theme
+- **kali** — Kali Linux terminal colors
 
 ## Screenshot Options
 
