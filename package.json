@@ -1,0 +1,23 @@
+{
+  "name": "terminal-mcp",
+  "version": "1.0.0",
+  "description": "MCP server for terminal command execution with screenshot capture",
+  "type": "module",
+  "bin": {
+    "terminal-mcp": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsc --watch"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "ansi-to-html": "^0.7.2",
+    "puppeteer": "^24.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0"
+  }
+}
