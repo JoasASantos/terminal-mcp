@@ -311,6 +311,10 @@ function buildTerminalHtml(
     maxWidth?: number;
     watermark?: string;
     padding?: number;
+    lineHeight?: number;
+    maxLines?: number;
+    width?: number;
+    compact?: boolean;
   } = {},
 ): string {
   const {
@@ -322,12 +326,25 @@ function buildTerminalHtml(
     showExitCode = true,
     maxWidth = 980,
     watermark,
-    padding = 20,
+    padding = 16,
+    lineHeight = 1.4,
+    maxLines,
+    width,
+    compact = false,
   } = options;
 
   const cap = capture as Capture;
-  const outputHtml = ansiToHtml(capture.output, theme);
+  let outputText = capture.output;
+  if (maxLines) {
+    const lines = outputText.split("\n");
+    if (lines.length > maxLines) {
+      outputText = lines.slice(0, maxLines).join("\n") + `\n... [${lines.length - maxLines} lines truncated]`;
+    }
+  }
+  const outputHtml = ansiToHtml(outputText, theme);
   const windowTitle = title || capture.command.split(" ")[0];
+  const termWidth = width ? `width: ${width}px;` : "";
+  const contentPad = compact ? 10 : 16;
   const exitCode = cap.exitCode ?? 0;
   const duration = cap.duration ? `${(cap.duration / 1000).toFixed(2)}s` : "";
 
@@ -358,17 +375,18 @@ function buildTerminalHtml(
 
   .terminal {
     background: ${theme.bg};
-    border-radius: 10px;
+    border-radius: ${compact ? 6 : 10}px;
     overflow: hidden;
-    box-shadow: 0 20px 68px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.05);
-    min-width: 500px;
+    box-shadow: 0 ${compact ? 10 : 20}px ${compact ? 40 : 68}px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.05);
+    min-width: ${compact ? 300 : 500}px;
     max-width: ${maxWidth}px;
+    ${termWidth}
   }
 
   ${showChrome ? `
   .titlebar {
     background: ${theme.titlebarBg};
-    padding: 12px 16px;
+    padding: ${compact ? "8px 12px" : "12px 16px"};
     display: flex;
     align-items: center;
     gap: 8px;
@@ -391,10 +409,10 @@ function buildTerminalHtml(
   ` : ""}
 
   .content {
-    padding: 16px 20px;
+    padding: ${contentPad}px ${compact ? 14 : 20}px;
     font-family: 'SF Mono', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
     font-size: ${fontSize}px;
-    line-height: 1.6;
+    line-height: ${lineHeight};
     color: ${theme.fg};
     white-space: pre-wrap;
     word-wrap: break-word;
@@ -402,7 +420,7 @@ function buildTerminalHtml(
   }
 
   .prompt-line {
-    margin-bottom: 4px;
+    margin-bottom: ${compact ? 2 : 4}px;
   }
 
   .prompt { color: ${theme.promptColor}; font-weight: bold; }
@@ -413,7 +431,7 @@ function buildTerminalHtml(
     color: ${theme.timestampColor};
     font-family: 'SF Mono', 'Menlo', 'Monaco', 'Consolas', monospace;
     font-size: ${Math.max(fontSize - 2, 10)}px;
-    padding: 10px 20px;
+    padding: ${compact ? 6 : 10}px ${compact ? 14 : 20}px;
     border-top: 1px solid ${theme.borderColor};
     display: flex;
     justify-content: space-between;
@@ -592,6 +610,7 @@ async function getBrowser() {
 async function renderScreenshot(
   html: string,
   savePath: string,
+  scale: number = 2,
 ): Promise<{ path: string; width: number; height: number; size: number }> {
   const dir = dirname(savePath);
   await mkdir(dir, { recursive: true });
@@ -612,7 +631,7 @@ async function renderScreenshot(
     await page.setViewport({
       width: Math.ceil(box!.width + box!.x * 2),
       height: Math.ceil(box!.height + box!.y * 2),
-      deviceScaleFactor: 2,
+      deviceScaleFactor: scale,
     });
 
     await page.screenshot({
@@ -723,6 +742,30 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
             type: "string",
             description: "Watermark text in bottom-right corner",
           },
+          width: {
+            type: "number",
+            description: "Fixed terminal width in pixels (default: auto, max 980)",
+          },
+          max_width: {
+            type: "number",
+            description: "Maximum terminal width in pixels (default: 980)",
+          },
+          max_lines: {
+            type: "number",
+            description: "Maximum output lines to render, truncates the rest",
+          },
+          line_height: {
+            type: "number",
+            description: "Line height multiplier (default: 1.4)",
+          },
+          scale: {
+            type: "number",
+            description: "Screenshot scale factor, 1 = 1x, 2 = 2x retina (default: 2)",
+          },
+          compact: {
+            type: "boolean",
+            description: "Compact mode: reduced padding and spacing (default: false)",
+          },
         },
       },
     },
@@ -747,6 +790,12 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
           prompt: { type: "string" },
           show_timestamp: { type: "boolean" },
           watermark: { type: "string" },
+          width: { type: "number", description: "Fixed terminal width in pixels" },
+          max_width: { type: "number", description: "Maximum terminal width (default: 980)" },
+          max_lines: { type: "number", description: "Maximum output lines to render" },
+          line_height: { type: "number", description: "Line height multiplier (default: 1.4)" },
+          scale: { type: "number", description: "Scale factor 1-3 (default: 2)" },
+          compact: { type: "boolean", description: "Compact mode: less padding" },
         },
         required: ["command"],
       },
@@ -769,6 +818,12 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
           show_chrome: { type: "boolean" },
           font_size: { type: "number" },
           watermark: { type: "string" },
+          width: { type: "number", description: "Fixed terminal width in pixels" },
+          max_width: { type: "number", description: "Maximum terminal width (default: 980)" },
+          max_lines: { type: "number", description: "Maximum output lines to render" },
+          line_height: { type: "number", description: "Line height multiplier (default: 1.4)" },
+          scale: { type: "number", description: "Scale factor 1-3 (default: 2)" },
+          compact: { type: "boolean", description: "Compact mode: less padding" },
         },
         required: ["text"],
       },
@@ -867,9 +922,14 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           prompt: args.prompt as string | undefined,
           showTimestamp: args.show_timestamp as boolean | undefined,
           watermark: args.watermark as string | undefined,
+          width: args.width as number | undefined,
+          maxWidth: (args.max_width as number | undefined) || 980,
+          maxLines: args.max_lines as number | undefined,
+          lineHeight: args.line_height as number | undefined,
+          compact: args.compact as boolean | undefined,
         });
 
-        const result = await renderScreenshot(html, savePath);
+        const result = await renderScreenshot(html, savePath, (args.scale as number) || 2);
 
         return {
           content: [
@@ -912,9 +972,14 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           prompt: args.prompt as string | undefined,
           showTimestamp: args.show_timestamp as boolean | undefined,
           watermark: args.watermark as string | undefined,
+          width: args.width as number | undefined,
+          maxWidth: (args.max_width as number | undefined) || 980,
+          maxLines: args.max_lines as number | undefined,
+          lineHeight: args.line_height as number | undefined,
+          compact: args.compact as boolean | undefined,
         });
 
-        const result = await renderScreenshot(html, savePath);
+        const result = await renderScreenshot(html, savePath, (args.scale as number) || 2);
 
         const outputPreview =
           capture.output.length > 1500
@@ -962,9 +1027,14 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           fontSize: args.font_size as number | undefined,
           title: args.title as string | undefined,
           watermark: args.watermark as string | undefined,
+          width: args.width as number | undefined,
+          maxWidth: (args.max_width as number | undefined) || 980,
+          maxLines: args.max_lines as number | undefined,
+          lineHeight: args.line_height as number | undefined,
+          compact: args.compact as boolean | undefined,
         });
 
-        const result = await renderScreenshot(html, savePath);
+        const result = await renderScreenshot(html, savePath, (args.scale as number) || 2);
 
         return {
           content: [
