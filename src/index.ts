@@ -109,6 +109,40 @@ const THEMES: Record<string, Theme> = {
       12: "#89b4fa", 13: "#cba6f7", 14: "#94e2d5", 15: "#a6adc8",
     },
   },
+  macos: {
+    name: "macOS Terminal",
+    bg: "#1e1e1e",
+    fg: "#cccccc",
+    titlebarBg: "#3c3c3c",
+    titlebarFg: "#9a9a9a",
+    promptColor: "#4fc3f7",
+    commandColor: "#e0e0e0",
+    timestampColor: "#6e6e6e",
+    borderColor: "#3c3c3c",
+    colors: {
+      0: "#000000", 1: "#ff6b6b", 2: "#67f86f", 3: "#fffc67",
+      4: "#6a76fb", 5: "#fd7cfc", 6: "#68fdfe", 7: "#cccccc",
+      8: "#808080", 9: "#ff6b6b", 10: "#67f86f", 11: "#fffc67",
+      12: "#6a76fb", 13: "#fd7cfc", 14: "#68fdfe", 15: "#ffffff",
+    },
+  },
+  kali: {
+    name: "Kali Linux",
+    bg: "#1a1a2e",
+    fg: "#d4d4d4",
+    titlebarBg: "#16213e",
+    titlebarFg: "#6272a4",
+    promptColor: "#4db8ff",
+    commandColor: "#ffffff",
+    timestampColor: "#5c6370",
+    borderColor: "#0f3460",
+    colors: {
+      0: "#1a1a2e", 1: "#e94560", 2: "#2ecc71", 3: "#f1c40f",
+      4: "#3498db", 5: "#9b59b6", 6: "#1abc9c", 7: "#d4d4d4",
+      8: "#5c6370", 9: "#e74c3c", 10: "#2ecc71", 11: "#f39c12",
+      12: "#2980b9", 13: "#8e44ad", 14: "#16a085", 15: "#ffffff",
+    },
+  },
   hacker: {
     name: "Hacker",
     bg: "#0a0a0a",
@@ -662,7 +696,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
           },
           theme: {
             type: "string",
-            enum: ["tokyonight", "dracula", "monokai", "catppuccin", "hacker"],
+            enum: ["tokyonight", "dracula", "monokai", "catppuccin", "hacker", "macos", "kali"],
             description: "Terminal color theme (default: tokyonight)",
           },
           show_chrome: {
@@ -705,7 +739,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
           save_path: { type: "string", description: "Full path for PNG output" },
           theme: {
             type: "string",
-            enum: ["tokyonight", "dracula", "monokai", "catppuccin", "hacker"],
+            enum: ["tokyonight", "dracula", "monokai", "catppuccin", "hacker", "macos", "kali"],
           },
           show_chrome: { type: "boolean" },
           font_size: { type: "number" },
@@ -730,7 +764,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
           save_path: { type: "string", description: "Full path for PNG output" },
           theme: {
             type: "string",
-            enum: ["tokyonight", "dracula", "monokai", "catppuccin", "hacker"],
+            enum: ["tokyonight", "dracula", "monokai", "catppuccin", "hacker", "macos", "kali"],
           },
           show_chrome: { type: "boolean" },
           font_size: { type: "number" },
