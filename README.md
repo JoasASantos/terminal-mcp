@@ -8,7 +8,7 @@ Works with any MCP-compatible client: **Claude Code**, **OpenAI Codex**, **Antig
 
 - **Execute & capture**: Run commands with full ANSI color preservation
 - **Terminal-styled screenshots**: Renders output as PNG with macOS window chrome, proper colors, and metadata
-- **7 built-in themes**: Tokyo Night, Dracula, Monokai, Catppuccin, Hacker, macOS, Kali
+- **20 built-in themes**: Tokyo Night, Dracula, Nord, Gruvbox, GitHub Dark, Kali, Ubuntu, and more
 - **Report-ready**: Watermarks, timestamps, exit codes, custom titles
 - **Full ANSI support**: 16 colors, 256-color palette, and 24-bit truecolor
 - **Cross-platform**: macOS and Linux support
@@ -196,29 +196,46 @@ Any client supporting the [Model Context Protocol](https://modelcontextprotocol.
 
 | Tool | Description |
 |------|-------------|
-| `terminal_exec` | Execute a command and capture output with ANSI colors |
-| `terminal_screenshot` | Render a captured output as a terminal-styled PNG |
-| `terminal_exec_screenshot` | Execute + screenshot in one step |
+| `terminal_exec_screenshot` | **Primary tool.** One command = one PNG. Execute any shell command and get a screenshot |
+| `terminal_exec` | Execute a command and capture output for later screenshot |
+| `terminal_screenshot` | Render a previously captured output as PNG |
 | `terminal_screenshot_text` | Render arbitrary text as a terminal PNG |
 | `terminal_list_captures` | List all captures in the current session |
 | `terminal_list_screenshots` | List saved PNG files |
 | `terminal_themes` | List available themes |
 
-## Themes
+Works with any command: `nmap`, `curl`, `gobuster`, `nikto`, `sqlmap`, `ls`, `docker`, `kubectl`, `git`, `python`, `gcc` — anything that runs in a shell.
 
-- **tokyonight** (default) — Dark blue, clean and modern
-- **dracula** — Classic purple-accented dark theme
-- **monokai** — Warm dark theme with vibrant colors
-- **catppuccin** — Soft pastel dark theme
-- **hacker** — Green-on-black matrix style
-- **macos** — Native macOS Terminal.app dark theme
-- **kali** — Kali Linux terminal colors
+## Themes (20)
+
+| Theme | Description |
+|-------|-------------|
+| **tokyonight** | Dark blue, clean and modern (default) |
+| **dracula** | Classic purple-accented dark |
+| **monokai** | Warm dark with vibrant colors |
+| **catppuccin** | Soft pastel dark (Mocha) |
+| **nord** | Arctic blue-gray palette |
+| **gruvbox** | Retro warm dark with earthy tones |
+| **solarized** | Solarized Dark, precision colors |
+| **onedark** | Atom One Dark |
+| **material** | Material Design dark |
+| **ayu** | Ayu Dark, minimal contrast |
+| **github** | GitHub Dark |
+| **cobalt** | Deep blue with bright accents |
+| **hacker** | Green-on-black matrix style |
+| **macos** | Native macOS Terminal.app dark |
+| **kali** | Kali Linux terminal |
+| **parrot** | Parrot OS terminal |
+| **ubuntu** | Ubuntu terminal (aubergine) |
+| **powershell** | Windows PowerShell blue |
+| **retro** | Retro amber phosphor CRT |
+| **light** | Light theme for print-friendly reports |
 
 ## Screenshot Options
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `theme` | string | `tokyonight` | Color theme |
+| `theme` | string | `tokyonight` | Color theme (see list above) |
 | `show_chrome` | boolean | `true` | macOS window chrome with traffic lights |
 | `font_size` | number | `14` | Font size in pixels |
 | `title` | string | command name | Window title bar text |
@@ -226,6 +243,12 @@ Any client supporting the [Model Context Protocol](https://modelcontextprotocol.
 | `show_timestamp` | boolean | `true` | Show timestamp in footer |
 | `watermark` | string | — | Watermark text (bottom-right) |
 | `save_path` | string | auto | Full path for the output PNG |
+| `width` | number | auto | Fixed terminal width in pixels |
+| `max_width` | number | `980` | Maximum terminal width |
+| `max_lines` | number | all | Truncate output after N lines |
+| `line_height` | number | `1.4` | Line spacing multiplier |
+| `scale` | number | `2` | Resolution: 1 = 1x, 2 = retina, 3 = 3x |
+| `compact` | boolean | `false` | Reduced padding for smaller screenshots |
 
 ## Usage Examples
 
